@@ -41,6 +41,8 @@ const getAllBookings = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateBookingStatus = asyncHandler(async (req, res) => {
     const { status, totalAmount, paymentStatus } = req.body;
+    console.log(`[Admin] Updating Booking ${req.params.id}: status=${status}, totalAmount=${totalAmount}`);
+
     const booking = await Booking.findById(req.params.id);
 
     if (booking) {
@@ -48,8 +50,14 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
         if (totalAmount !== undefined) booking.totalAmount = totalAmount;
         if (paymentStatus) booking.paymentStatus = paymentStatus;
 
-        const updatedBooking = await booking.save();
-        res.json(updatedBooking);
+        try {
+            const updatedBooking = await booking.save();
+            console.log(`[Admin] Successfully updated Booking ${req.params.id}`);
+            res.json(updatedBooking);
+        } catch (error) {
+            console.error(`[Admin] Error saving booking ${req.params.id}:`, error.message);
+            res.status(400).json({ message: error.message });
+        }
     } else {
         res.status(404);
         throw new Error('Booking not found');
@@ -101,6 +109,7 @@ const updateHealthReport = asyncHandler(async (req, res) => {
         throw new Error('Booking not found');
     }
 });
+
 
 // @desc    Get all users
 // @route   GET /api/admin/users

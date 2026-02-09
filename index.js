@@ -43,7 +43,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Logging
@@ -63,7 +67,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
-    res.send('SariCare API is running');
+    res.json({ message: 'SariCare API is running' });
+});
+
+// 404 Not Found Middleware
+app.use((req, res, next) => {
+    console.log(`[404] No route found for: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ message: `Not Found - ${req.originalUrl}` });
 });
 
 // Error Handler Middleware (must be after routes)
